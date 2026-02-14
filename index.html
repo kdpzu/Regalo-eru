@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Erubiel 🖤</title>
+    <style>
+        /* --- Estilos Generales --- */
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            user-select: none;
+            transition: background-color 0.5s ease;
+        }
+
+        h1 { font-size: 2rem; margin-bottom: 20px; cursor: pointer; }
+        p { font-size: 1.2rem; }
+
+        /* --- Pantallas --- */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: inherit; /* Hereda el color de fondo por si cambia con el secreto */
+            z-index: 2;
+        }
+
+        .active { display: flex; }
+
+        /* --- Botones --- */
+        button {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin: 10px;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: white;
+            color: black;
+        }
+
+        /* --- Área de juego --- */
+        #game-grid {
+            display: grid;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .emoji-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .emoji-btn { font-size: 1.5rem; }
+        }
+
+        /* --- Animación de notas musicales --- */
+        .music-note {
+            position: absolute;
+            top: -50px;
+            color: white;
+            font-size: 2rem;
+            animation: fall linear forwards;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* --- Temporizador --- */
+        #timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            border: 1px solid white;
+            padding: 5px 10px;
+        }
+
+        .prize-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* --- Estilo Final "Persona 5 Calling Card" --- */
+        .calling-card-container {
+            /* Contenedor para centrar la tarjeta rotada */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .calling-card {
+            background: #d02020; /* Rojo estilo Persona */
+            color: black;
+            transform: rotate(-3deg); /* Rotación rebelde */
+            padding: 30px;
+            border: 4px solid black;
+            box-shadow: 15px 15px 0px black;
+            font-family: 'Arial Black', 'Impact', sans-serif;
+            text-transform: uppercase;
+            max-width: 90%;
+            position: relative;
+        }
+        
+        .card-title-box {
+            background: black;
+            color: white;
+            display: inline-block;
+            padding: 5px 15px;
+            transform: skew(-10deg); /* Inclinación del texto */
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .calling-card p {
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+
+        .signature {
+             text-align: right;
+             font-size: 0.9rem !important;
+             margin-top: 25px !important;
+             font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="tu_cancion.mp3" type="audio/mpeg">
+    </audio>
+
+
+    <div id="start-screen" class="screen active">
+        <h1 id="main-title">MISIÓN: ENCUENTRA AL IMPOSTOR</h1>
+        <p>5 Niveles. Demuestra tu habilidad.</p>
+        <button onclick="startGame()">EMPEZAR MISIÓN</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div id="timer">Tiempo: 0s</div>
+        <h2 id="level-indicator">Nivel 1/5</h2>
+        <div id="game-grid"></div>
+    </div>
+
+    <div id="victory-screen" class="screen">
+        <h1>¡MISIÓN CUMPLIDA! 🎵</h1>
+        <p>Has completado el reto.</p>
+        <p>Elige tu recompensa:</p>
+        <div class="prize-container">
+            <button onclick="selectPrize('EDIT PERSONALIZADO 🎬')">1. Edit personalizado</button>
+            <button onclick="selectPrize('VIDEO PERSONALIZADO 📹')">2. Video personalizado</button>
+            <button onclick="selectPrize('UN BESITO 💋')">3. Un besito</button>
+        </div>
+    </div>
+
+    <div id="final-screen" class="screen">
+        <div class="calling-card-container">
+            <div class="calling-card">
+                <div class="card-title-box">TAKE YOUR HEART</div>
+                <h2 id="chosen-prize" style="background: white; color: black; display:inline-block; padding: 5px;"></h2>
+                <p>Erubiel:</p>
+                <p>Gracias por ser mi Player 2,</p>
+                <p>por tus increíbles dibujos</p>
+                <p>y por las risas compartidas.</p>
+                <p class="signature">— Tu Hacker Favorita 🖤</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de niveles
+        const levels = [
+            { diff: '💗', fill: '💖', size: 3 },
+            { diff: '🐱', fill: '😺', size: 4 },
+            { diff: '🐺', fill: '🐶', size: 5 },
+            { diff: '💿', fill: '📀', size: 6 },
+            { diff: '🥺', fill: '🥹', size: 7 }
+        ];
+
+        let currentLevel = 0;
+        let startTime;
+        let timerInterval;
+
+        function startGame() {
+            // Iniciar música
+            const music = document.getElementById('bg-music');
+            music.volume = 0.3; // Volumen al 30%
+            music.play().catch(error => console.log("Se requiere interacción para reproducir audio."));
+
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 100);
+            loadLevel();
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById('timer').innerText = `Tiempo: ${elapsed}s`;
+        }
+
+        function loadLevel() {
+            const grid = document.getElementById('game-grid');
+            const levelData = levels[currentLevel];
+            document.getElementById('level-indicator').innerText = `Nivel ${currentLevel + 1}/5`;
+            
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = `repeat(${levelData.size}, 1fr)`;
+
+            const totalCells = levelData.size * levelData.size;
+            const winnerIndex = Math.floor(Math.random() * totalCells);
+
+            for (let i = 0; i < totalCells; i++) {
+                const btn = document.createElement('button');
+                btn.classList.add('emoji-btn');
+                
+                if (i === winnerIndex) {
+                    btn.innerText = levelData.diff;
+                    btn.onclick = nextLevel;
+                } else {
+                    btn.innerText = levelData.fill;
+                }
+                grid.appendChild(btn);
+            }
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            if (currentLevel < levels.length) {
+                loadLevel();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('victory-screen').classList.add('active');
+            startMusicNotes();
+        }
+
+        function startMusicNotes() {
+            const symbols = ['♪', '♫', '♩', '♬', '♭', '♮'];
+            setInterval(() => {
+                const note = document.createElement('div');
+                note.classList.add('music-note');
+                note.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                note.style.left = Math.random() * 100 + 'vw';
+                note.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                document.body.appendChild(note);
+                setTimeout(() => { note.remove(); }, 5000);
+            }, 300);
+        }
+
+        function selectPrize(prizeName) {
+            document.getElementById('victory-screen').classList.remove('active');
+            document.getElementById('final-screen').classList.add('active');
+            document.getElementById('chosen-prize').innerText = `PREMIO: ${prizeName}`;
+        }
+
+        // --- EASTER EGG (SECRETO) ---
+        let secretCount = 0;
+        const titleBtn = document.getElementById('main-title');
+
+        titleBtn.addEventListener('click', () => {
+            secretCount++;
+            if(secretCount === 5) { // 5 clicks rápidos
+                alert("💀 SECRETO DESBLOQUEADO: Te quiero mucho tonto. 💀");
+                document.body.style.backgroundColor = "#3a0000"; // Cambia fondo a rojo oscuro
+            }
+        });
+    </script>
+</body>
+</html>
