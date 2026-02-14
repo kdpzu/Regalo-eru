@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocolo Erubiel 🖤</title>
+    <title>PROTOCOL_ERU.EXE 🖤</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
             --pixel-font: 'Press Start 2P', cursive;
-            --glow-color: #fff;
             --persona-red: #d02020;
+            --glow: 0 0 10px #fff, 0 0 20px #fff;
         }
 
         body {
@@ -17,294 +17,292 @@
             background-color: black;
             color: white;
             font-family: var(--pixel-font);
+            height: 100vh;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
             text-align: center;
-            overflow: hidden;
-            user-select: none;
         }
 
-        /* --- Efecto de Brillo (Glow) --- */
-        h1, h2, p, #timer, button {
-            text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
+        /* --- EFECTO CRT/SCANLINES (Estilo Lain) --- */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+            animation: flicker 0.15s infinite;
         }
 
-        /* --- Pantallas y Transiciones --- */
+        @keyframes flicker {
+            0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; }
+        }
+
+        /* --- UI PERSONA (Formas Oblicuas) --- */
+        .persona-header {
+            background: var(--persona-red);
+            color: black;
+            padding: 10px 40px;
+            transform: skew(-15deg) rotate(-2deg);
+            box-shadow: 10px 10px 0px white;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+
+        .persona-header h1 { margin: 0; text-shadow: none; transform: skew(15deg); }
+
+        /* --- PANTALLAS --- */
         .screen {
             display: none;
-            width: 100%;
-            height: 100%;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            position: absolute;
-            transition: opacity 0.5s ease-in-out;
-            opacity: 0;
+            width: 100%;
+            z-index: 10;
         }
+        .active { display: flex; animation: fadeIn 0.5s forwards; }
 
-        .active { 
-            display: flex; 
-            opacity: 1;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- Botones --- */
+        /* --- BOTONES GLOW --- */
         button {
-            background: transparent;
-            border: 2px solid white;
+            background: black;
+            border: 3px solid white;
             color: white;
-            padding: 15px;
+            padding: 15px 30px;
+            font-family: inherit;
             font-size: 0.8rem;
             cursor: pointer;
             margin: 10px;
-            font-family: inherit;
-            box-shadow: 0 0 10px white;
+            box-shadow: var(--glow);
+            transition: 0.2s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
         }
 
-        button:hover {
-            background: white;
-            color: black;
-            box-shadow: 0 0 20px white;
-        }
+        button:hover { background: white; color: black; transform: scale(1.1); }
 
-        /* --- Tablero de Juego --- */
+        /* --- ÁREA DE JUEGO (Tablero) --- */
         #game-grid {
             display: grid;
             gap: 10px;
-            margin-top: 20px;
-            background: rgba(255, 255, 255, 0.1);
             padding: 20px;
-            border: 4px double white;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+            border: 5px solid white;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.2);
+            position: relative;
         }
 
         .emoji-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.3);
-            font-size: 2rem;
-            cursor: pointer;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s;
+            width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .emoji-btn:active { transform: scale(0.9); }
-
-        /* --- Animación de Estrellas (Final) --- */
-        .star-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            overflow: hidden;
-            z-index: -1;
-            display: none;
+        /* --- EFECTO GLITCH AL FALLAR --- */
+        .glitch-flash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: red; mix-blend-mode: exclusion;
+            z-index: 200; display: none;
         }
 
+        /* --- PARTICULAS FLOTANTES --- */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        /* --- FINAL: ESTRELLAS Y NOTAS --- */
         .star {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100px;
-            height: 100px;
-            background: var(--persona-red);
+            position: absolute; top: 50%; left: 50%;
+            width: 100px; height: 100px;
             clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
             transform: translate(-50%, -50%) scale(0);
-            opacity: 0;
         }
-
-        @keyframes star-expand {
+        @keyframes starExpand {
             0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            50% { opacity: 0.7; }
-            100% { transform: translate(-50%, -50%) scale(10); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(12); opacity: 0; }
         }
 
-        /* --- Lluvia Musical Masiva --- */
-        .music-note {
-            position: absolute;
-            top: -50px;
-            color: white;
-            font-size: 1.5rem;
-            animation: fall linear forwards;
-            z-index: 10;
-            pointer-events: none;
-            text-shadow: 0 0 5px white;
-        }
+        .note { position: absolute; color: white; top: -50px; animation: fall linear infinite; text-shadow: var(--glow); }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        @keyframes fall {
-            to { transform: translateY(110vh) rotate(720deg); }
-        }
-
-        /* --- Calling Card --- */
+        /* --- CALLING CARD --- */
         .calling-card {
             background: var(--persona-red);
-            color: black;
-            transform: rotate(-2deg);
-            padding: 30px;
-            border: 5px solid black;
-            box-shadow: 20px 20px 0px black;
-            max-width: 85%;
-            z-index: 5;
-        }
-
-        .card-title {
-            background: black;
-            color: white;
-            padding: 5px 10px;
-            font-size: 1rem;
-            display: inline-block;
-            margin-bottom: 20px;
+            padding: 30px; border: 5px solid black;
+            transform: rotate(-3deg);
+            box-shadow: 20px 20px 0 black;
+            color: black; font-weight: bold; max-width: 80%;
         }
     </style>
 </head>
 <body>
 
+    <div class="overlay"></div>
+    <div class="glitch-flash" id="flash"></div>
+    <div class="particles" id="particles"></div>
+    
     <audio id="bg-music" loop>
         <source src="tu_cancion.mp3" type="audio/mpeg">
     </audio>
 
-    <div id="start-screen" class="screen active">
-        <h1 id="main-title">MISIÓN: IMPOSTOR</h1>
-        <p style="font-size: 0.6rem;">LOCALIZA EL ERROR EN EL SISTEMA</p>
-        <button onclick="startGame()">INICIAR SECUENCIA</button>
+    <div id="boot-screen" class="screen active">
+        <div id="boot-text" style="text-align: left; font-size: 0.7rem; color: #0f0;"></div>
+    </div>
+
+    <div id="start-screen" class="screen">
+        <div class="persona-header"><h1>PROTOCOL: ERU</h1></div>
+        <p style="font-size: 0.5rem;">STATUS: READY FOR UPLOAD</p>
+        <button onclick="startSequence()">HACK SYSTEM</button>
     </div>
 
     <div id="game-screen" class="screen">
-        <div id="timer" style="font-size: 0.7rem;">TIME: 0s</div>
-        <h2 id="level-indicator" style="font-size: 0.8rem;">LEVEL 1/7</h2>
+        <div style="display: flex; gap: 20px; margin-bottom: 10px;">
+            <div id="timer" style="background: white; color: black; padding: 5px;">00s</div>
+            <div id="lvl" style="background: var(--persona-red); padding: 5px;">LVL 1/7</div>
+        </div>
         <div id="game-grid"></div>
     </div>
 
     <div id="victory-screen" class="screen">
-        <h1>ACCESS GRANTED</h1>
-        <p style="font-size: 0.7rem;">ELIGE TU RECOMPENSA:</p>
+        <div class="persona-header"><h1>ACCESS GRANTED</h1></div>
         <button onclick="selectPrize('EDIT PERSONALIZADO')">1. EDIT</button>
         <button onclick="selectPrize('VIDEO PERSONALIZADO')">2. VIDEO</button>
-        <button onclick="selectPrize('UN BESITO')">3. BESO</button>
+        <button onclick="selectPrize('UN BESITO')">3. BESITO</button>
     </div>
 
     <div id="final-screen" class="screen">
-        <div class="star-container" id="stars"></div>
+        <div id="stars-container"></div>
         <div class="calling-card">
-            <div class="card-title">TAKE YOUR HEART</div>
-            <p id="chosen-prize" style="background: white; border: 2px solid black; padding: 5px; font-size: 0.7rem;"></p>
-            <p style="font-size: 0.6rem; margin-top: 15px;">Gracias Erubiel por tu tiempo, tus dibujos y por cada sonrisa.</p>
+            <p style="background: black; color: white; display: inline-block; padding: 5px;">TAKE YOUR HEART</p>
+            <h2 id="prize-text" style="font-size: 0.8rem; margin: 15px 0;"></h2>
+            <p style="font-size: 0.6rem;">Gracias Erubiel por tu tiempo, por tus dibujos que tanto aprecio y por cada vez que me haces sonreír.</p>
             <p style="text-align: right; font-size: 0.5rem; margin-top: 20px;">— TU HACKER FAVORITO 🖤</p>
         </div>
     </div>
 
     <script>
         const levels = [
-            { diff: '💗', fill: '💖', size: 3 },
-            { diff: '🙃', fill: '🙂', size: 4 },
-            { diff: '🙁', fill: '☹️', size: 4 },
-            { diff: '😥', fill: '😢', size: 5 },
-            { diff: '😦', fill: '😧', size: 5 },
-            { diff: '🫤', fill: '🙁', size: 6 },
-            { diff: '😝', fill: '😛', size: 6 }
+            { d: '💗', f: '💖', s: 3 }, { d: '🙃', f: '🙂', s: 4 },
+            { d: '🙁', f: '☹️', s: 4 }, { d: '😥', f: '😢', s: 5 },
+            { d: '😦', f: '😧', s: 5 }, { d: '🫤', f: '🙁', s: 6 },
+            { d: '😝', f: '😛', s: 6 }
         ];
 
-        let currentLevel = 0;
-        let startTime;
-        let timerInterval;
+        let curLvl = 0;
+        let time = 0;
+        let timerInt;
 
-        function startGame() {
-            const music = document.getElementById('bg-music');
-            music.volume = 0.3;
-            music.play();
-            
-            transitionTo('start-screen', 'game-screen');
-            startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 100);
-            loadLevel();
-        }
-
-        function updateTimer() {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            document.getElementById('timer').innerText = `TIME: ${elapsed}S`;
-        }
-
-        function loadLevel() {
-            const grid = document.getElementById('game-grid');
-            const data = levels[currentLevel];
-            document.getElementById('level-indicator').innerText = `LEVEL ${currentLevel + 1}/7`;
-            
-            grid.innerHTML = '';
-            grid.style.gridTemplateColumns = `repeat(${data.size}, 1fr)`;
-
-            const total = data.size * data.size;
-            const winIdx = Math.floor(Math.random() * total);
-
-            for (let i = 0; i < total; i++) {
-                const btn = document.createElement('div');
-                btn.classList.add('emoji-btn');
-                btn.innerText = (i === winIdx) ? data.diff : data.fill;
-                btn.onclick = (i === winIdx) ? nextLevel : null;
-                grid.appendChild(btn);
-            }
-        }
-
-        function nextLevel() {
-            currentLevel++;
-            if (currentLevel < levels.length) {
-                // Transición visual rápida entre niveles
-                const grid = document.getElementById('game-grid');
-                grid.style.opacity = '0';
-                setTimeout(() => {
-                    loadLevel();
-                    grid.style.opacity = '1';
-                }, 200);
+        // --- INTRO HACKER ---
+        const bootLines = [
+            "> INITIALIZING PROTOCOL_ERU-B...",
+            "> LOADING PERSONAL_MEMORIES... [OK]",
+            "> BYPASSING EMOTIONAL_FIREWALL...",
+            "> SEARCHING FOR ART_DATA... [FOUND]",
+            "> SMILE_SYNC: 100%",
+            "> SYSTEM READY."
+        ];
+        
+        function typeBoot(idx) {
+            if(idx < bootLines.length) {
+                document.getElementById('boot-text').innerHTML += bootLines[idx] + "<br>";
+                setTimeout(() => typeBoot(idx+1), 400);
             } else {
-                clearInterval(timerInterval);
-                transitionTo('game-screen', 'victory-screen');
+                setTimeout(() => transition('boot-screen', 'start-screen'), 1000);
+            }
+        }
+        window.onload = () => { 
+            typeBoot(0); 
+            createParticles();
+        };
+
+        function startSequence() {
+            document.getElementById('bg-music').play();
+            transition('start-screen', 'game-screen');
+            timerInt = setInterval(() => { time++; document.getElementById('timer').innerText = time + "s"; }, 1000);
+            loadLvl();
+        }
+
+        function loadLvl() {
+            const grid = document.getElementById('game-grid');
+            const data = levels[curLvl];
+            document.getElementById('lvl').innerText = `LVL ${curLvl+1}/7`;
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = `repeat(${data.s}, 1fr)`;
+            
+            const total = data.s * data.s;
+            const win = Math.floor(Math.random() * total);
+            
+            for(let i=0; i<total; i++) {
+                const b = document.createElement('div');
+                b.className = 'emoji-btn';
+                b.innerText = (i === win) ? data.d : data.f;
+                b.onclick = (i === win) ? next : triggerGlitch;
+                grid.appendChild(b);
             }
         }
 
-        function transitionTo(from, to) {
-            document.getElementById(from).classList.remove('active');
-            setTimeout(() => {
-                document.getElementById(to).classList.add('active');
-            }, 300);
+        function triggerGlitch() {
+            const f = document.getElementById('flash');
+            f.style.display = 'block';
+            setTimeout(() => f.style.display = 'none', 100);
         }
 
-        function selectPrize(name) {
-            document.getElementById('chosen-prize').innerText = `PREMIO: ${name}`;
-            transitionTo('victory-screen', 'final-screen');
-            startFinalEffects();
+        function next() {
+            curLvl++;
+            if(curLvl < levels.length) {
+                document.getElementById('game-grid').style.filter = "invert(1)";
+                setTimeout(() => { document.getElementById('game-grid').style.filter = "none"; loadLvl(); }, 150);
+            } else {
+                clearInterval(timerInt);
+                transition('game-screen', 'victory-screen');
+            }
         }
 
-        function startFinalEffects() {
+        function transition(f, t) {
+            document.getElementById(f).classList.remove('active');
+            setTimeout(() => document.getElementById(t).classList.add('active'), 300);
+        }
+
+        function selectPrize(p) {
+            document.getElementById('prize-text').innerText = "PREMIO: " + p;
+            transition('victory-screen', 'final-screen');
+            finalChaos();
+        }
+
+        function createParticles() {
+            const p = document.getElementById('particles');
+            for(let i=0; i<30; i++) {
+                const dot = document.createElement('div');
+                dot.style.cssText = `position:absolute; width:2px; height:2px; background:white; left:${Math.random()*100}%; top:${Math.random()*100}%; opacity:0.3;`;
+                p.appendChild(dot);
+            }
+        }
+
+        function finalChaos() {
             // Estrellas
-            const container = document.getElementById('stars');
-            container.style.display = 'block';
-            for(let i=0; i<5; i++) {
+            setInterval(() => {
                 const s = document.createElement('div');
-                s.classList.add('star');
-                // Alternar colores negro y rojo
-                if(i % 2 !== 0) s.style.background = 'black';
-                s.style.animation = `star-expand 4s infinite linear`;
-                s.style.animationDelay = `${i * 0.8}s`;
-                container.appendChild(s);
-            }
+                s.className = 'star';
+                s.style.background = Math.random() > 0.5 ? 'var(--persona-red)' : 'black';
+                s.style.animation = 'starExpand 3s forwards linear';
+                document.getElementById('stars-container').appendChild(s);
+                setTimeout(() => s.remove(), 3000);
+            }, 800);
 
-            // Lluvia de notas masiva
+            // Lluvia musical masiva
             const notes = ['♩','♪','♫','♬','♭','♮','♯','𝄞','𝄡','𝄢','𝄫'];
             setInterval(() => {
                 const n = document.createElement('div');
-                n.classList.add('music-note');
-                n.innerText = notes[Math.floor(Math.random() * notes.length)];
+                n.className = 'note';
+                n.innerText = notes[Math.floor(Math.random()*notes.length)];
                 n.style.left = Math.random() * 100 + 'vw';
-                n.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                n.style.fontSize = (Math.random()*2 + 1) + 'rem';
+                n.style.animationDuration = (Math.random()*2 + 1) + 's';
                 document.body.appendChild(n);
-                setTimeout(() => n.remove(), 4000);
-            }, 80);
+                setTimeout(() => n.remove(), 3000);
+            }, 50)
         }
     </script>
 </body>
