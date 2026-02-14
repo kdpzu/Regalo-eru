@@ -1,2 +1,2 @@
 # Regalo-eru
-regalo para un putito
+regalo para un putito.
