@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para Erubiel 🖤</title>
+    <title>Protocolo Erubiel 🖤</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* --- Estilos Generales --- */
+        :root {
+            --pixel-font: 'Press Start 2P', cursive;
+            --glow-color: #fff;
+            --persona-red: #d02020;
+        }
+
         body {
             margin: 0;
             background-color: black;
             color: white;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: var(--pixel-font);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,13 +25,14 @@
             text-align: center;
             overflow: hidden;
             user-select: none;
-            transition: background-color 0.5s ease;
         }
 
-        h1 { font-size: 2rem; margin-bottom: 20px; cursor: pointer; }
-        p { font-size: 1.2rem; }
+        /* --- Efecto de Brillo (Glow) --- */
+        h1, h2, p, #timer, button {
+            text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
+        }
 
-        /* --- Pantallas --- */
+        /* --- Pantallas y Transiciones --- */
         .screen {
             display: none;
             width: 100%;
@@ -34,126 +41,126 @@
             align-items: center;
             justify-content: center;
             position: absolute;
-            top: 0;
-            left: 0;
-            background-color: inherit; /* Hereda el color de fondo por si cambia con el secreto */
-            z-index: 2;
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0;
         }
 
-        .active { display: flex; }
+        .active { 
+            display: flex; 
+            opacity: 1;
+        }
 
         /* --- Botones --- */
         button {
             background: transparent;
             border: 2px solid white;
             color: white;
-            padding: 15px 30px;
-            font-size: 1.2rem;
+            padding: 15px;
+            font-size: 0.8rem;
             cursor: pointer;
             margin: 10px;
             font-family: inherit;
-            transition: 0.3s;
+            box-shadow: 0 0 10px white;
         }
 
         button:hover {
             background: white;
             color: black;
+            box-shadow: 0 0 20px white;
         }
 
-        /* --- Área de juego --- */
+        /* --- Tablero de Juego --- */
         #game-grid {
             display: grid;
-            gap: 5px;
+            gap: 10px;
             margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border: 4px double white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
         }
 
         .emoji-btn {
-            background: none;
-            border: none;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.3);
             font-size: 2rem;
             cursor: pointer;
-            padding: 0;
-        }
-        
-        @media (max-width: 600px) {
-            .emoji-btn { font-size: 1.5rem; }
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
         }
 
-        /* --- Animación de notas musicales --- */
+        .emoji-btn:active { transform: scale(0.9); }
+
+        /* --- Animación de Estrellas (Final) --- */
+        .star-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: -1;
+            display: none;
+        }
+
+        .star {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            background: var(--persona-red);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+
+        @keyframes star-expand {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { opacity: 0.7; }
+            100% { transform: translate(-50%, -50%) scale(10); opacity: 0; }
+        }
+
+        /* --- Lluvia Musical Masiva --- */
         .music-note {
             position: absolute;
             top: -50px;
             color: white;
-            font-size: 2rem;
+            font-size: 1.5rem;
             animation: fall linear forwards;
             z-index: 10;
             pointer-events: none;
+            text-shadow: 0 0 5px white;
         }
 
         @keyframes fall {
-            to { transform: translateY(110vh) rotate(360deg); }
+            to { transform: translateY(110vh) rotate(720deg); }
         }
 
-        /* --- Temporizador --- */
-        #timer {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 1.5rem;
-            border: 1px solid white;
-            padding: 5px 10px;
-        }
-
-        .prize-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* --- Estilo Final "Persona 5 Calling Card" --- */
-        .calling-card-container {
-            /* Contenedor para centrar la tarjeta rotada */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
+        /* --- Calling Card --- */
         .calling-card {
-            background: #d02020; /* Rojo estilo Persona */
+            background: var(--persona-red);
             color: black;
-            transform: rotate(-3deg); /* Rotación rebelde */
+            transform: rotate(-2deg);
             padding: 30px;
-            border: 4px solid black;
-            box-shadow: 15px 15px 0px black;
-            font-family: 'Arial Black', 'Impact', sans-serif;
-            text-transform: uppercase;
-            max-width: 90%;
-            position: relative;
+            border: 5px solid black;
+            box-shadow: 20px 20px 0px black;
+            max-width: 85%;
+            z-index: 5;
         }
-        
-        .card-title-box {
+
+        .card-title {
             background: black;
             color: white;
+            padding: 5px 10px;
+            font-size: 1rem;
             display: inline-block;
-            padding: 5px 15px;
-            transform: skew(-10deg); /* Inclinación del texto */
-            font-size: 1.5rem;
             margin-bottom: 20px;
-        }
-
-        .calling-card p {
-            font-size: 1.1rem;
-            font-weight: bold;
-            line-height: 1.4;
-            margin: 10px 0;
-        }
-
-        .signature {
-             text-align: right;
-             font-size: 0.9rem !important;
-             margin-top: 25px !important;
-             font-style: italic;
         }
     </style>
 </head>
@@ -163,52 +170,45 @@
         <source src="tu_cancion.mp3" type="audio/mpeg">
     </audio>
 
-
     <div id="start-screen" class="screen active">
-        <h1 id="main-title">MISIÓN: ENCUENTRA AL IMPOSTOR</h1>
-        <p>5 Niveles. Demuestra tu habilidad.</p>
-        <button onclick="startGame()">EMPEZAR MISIÓN</button>
+        <h1 id="main-title">MISIÓN: IMPOSTOR</h1>
+        <p style="font-size: 0.6rem;">LOCALIZA EL ERROR EN EL SISTEMA</p>
+        <button onclick="startGame()">INICIAR SECUENCIA</button>
     </div>
 
     <div id="game-screen" class="screen">
-        <div id="timer">Tiempo: 0s</div>
-        <h2 id="level-indicator">Nivel 1/5</h2>
+        <div id="timer" style="font-size: 0.7rem;">TIME: 0s</div>
+        <h2 id="level-indicator" style="font-size: 0.8rem;">LEVEL 1/7</h2>
         <div id="game-grid"></div>
     </div>
 
     <div id="victory-screen" class="screen">
-        <h1>¡MISIÓN CUMPLIDA! 🎵</h1>
-        <p>Has completado el reto.</p>
-        <p>Elige tu recompensa:</p>
-        <div class="prize-container">
-            <button onclick="selectPrize('EDIT PERSONALIZADO 🎬')">1. Edit personalizado</button>
-            <button onclick="selectPrize('VIDEO PERSONALIZADO 📹')">2. Video personalizado</button>
-            <button onclick="selectPrize('UN BESITO 💋')">3. Un besito</button>
-        </div>
+        <h1>ACCESS GRANTED</h1>
+        <p style="font-size: 0.7rem;">ELIGE TU RECOMPENSA:</p>
+        <button onclick="selectPrize('EDIT PERSONALIZADO')">1. EDIT</button>
+        <button onclick="selectPrize('VIDEO PERSONALIZADO')">2. VIDEO</button>
+        <button onclick="selectPrize('UN BESITO')">3. BESO</button>
     </div>
 
     <div id="final-screen" class="screen">
-        <div class="calling-card-container">
-            <div class="calling-card">
-                <div class="card-title-box">TAKE YOUR HEART</div>
-                <h2 id="chosen-prize" style="background: white; color: black; display:inline-block; padding: 5px;"></h2>
-                <p>Erubiel:</p>
-                <p>Gracias por ser mi Player 2,</p>
-                <p>por tus increíbles dibujos</p>
-                <p>y por las risas compartidas.</p>
-                <p class="signature">— Tu Hacker Favorita 🖤</p>
-            </div>
+        <div class="star-container" id="stars"></div>
+        <div class="calling-card">
+            <div class="card-title">TAKE YOUR HEART</div>
+            <p id="chosen-prize" style="background: white; border: 2px solid black; padding: 5px; font-size: 0.7rem;"></p>
+            <p style="font-size: 0.6rem; margin-top: 15px;">Gracias Erubiel por tu tiempo, tus dibujos y por cada sonrisa.</p>
+            <p style="text-align: right; font-size: 0.5rem; margin-top: 20px;">— TU HACKER FAVORITO 🖤</p>
         </div>
     </div>
 
     <script>
-        // Configuración de niveles
         const levels = [
             { diff: '💗', fill: '💖', size: 3 },
-            { diff: '🐱', fill: '😺', size: 4 },
-            { diff: '🐺', fill: '🐶', size: 5 },
-            { diff: '💿', fill: '📀', size: 6 },
-            { diff: '🥺', fill: '🥹', size: 7 }
+            { diff: '🙃', fill: '🙂', size: 4 },
+            { diff: '🙁', fill: '☹️', size: 4 },
+            { diff: '😥', fill: '😢', size: 5 },
+            { diff: '😦', fill: '😧', size: 5 },
+            { diff: '🫤', fill: '🙁', size: 6 },
+            { diff: '😝', fill: '😛', size: 6 }
         ];
 
         let currentLevel = 0;
@@ -216,13 +216,11 @@
         let timerInterval;
 
         function startGame() {
-            // Iniciar música
             const music = document.getElementById('bg-music');
-            music.volume = 0.3; // Volumen al 30%
-            music.play().catch(error => console.log("Se requiere interacción para reproducir audio."));
-
-            document.getElementById('start-screen').classList.remove('active');
-            document.getElementById('game-screen').classList.add('active');
+            music.volume = 0.3;
+            music.play();
+            
+            transitionTo('start-screen', 'game-screen');
             startTime = Date.now();
             timerInterval = setInterval(updateTimer, 100);
             loadLevel();
@@ -230,30 +228,25 @@
 
         function updateTimer() {
             const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            document.getElementById('timer').innerText = `Tiempo: ${elapsed}s`;
+            document.getElementById('timer').innerText = `TIME: ${elapsed}S`;
         }
 
         function loadLevel() {
             const grid = document.getElementById('game-grid');
-            const levelData = levels[currentLevel];
-            document.getElementById('level-indicator').innerText = `Nivel ${currentLevel + 1}/5`;
+            const data = levels[currentLevel];
+            document.getElementById('level-indicator').innerText = `LEVEL ${currentLevel + 1}/7`;
             
             grid.innerHTML = '';
-            grid.style.gridTemplateColumns = `repeat(${levelData.size}, 1fr)`;
+            grid.style.gridTemplateColumns = `repeat(${data.size}, 1fr)`;
 
-            const totalCells = levelData.size * levelData.size;
-            const winnerIndex = Math.floor(Math.random() * totalCells);
+            const total = data.size * data.size;
+            const winIdx = Math.floor(Math.random() * total);
 
-            for (let i = 0; i < totalCells; i++) {
-                const btn = document.createElement('button');
+            for (let i = 0; i < total; i++) {
+                const btn = document.createElement('div');
                 btn.classList.add('emoji-btn');
-                
-                if (i === winnerIndex) {
-                    btn.innerText = levelData.diff;
-                    btn.onclick = nextLevel;
-                } else {
-                    btn.innerText = levelData.fill;
-                }
+                btn.innerText = (i === winIdx) ? data.diff : data.fill;
+                btn.onclick = (i === winIdx) ? nextLevel : null;
                 grid.appendChild(btn);
             }
         }
@@ -261,49 +254,58 @@
         function nextLevel() {
             currentLevel++;
             if (currentLevel < levels.length) {
-                loadLevel();
+                // Transición visual rápida entre niveles
+                const grid = document.getElementById('game-grid');
+                grid.style.opacity = '0';
+                setTimeout(() => {
+                    loadLevel();
+                    grid.style.opacity = '1';
+                }, 200);
             } else {
-                endGame();
+                clearInterval(timerInterval);
+                transitionTo('game-screen', 'victory-screen');
             }
         }
 
-        function endGame() {
-            clearInterval(timerInterval);
-            document.getElementById('game-screen').classList.remove('active');
-            document.getElementById('victory-screen').classList.add('active');
-            startMusicNotes();
-        }
-
-        function startMusicNotes() {
-            const symbols = ['♪', '♫', '♩', '♬', '♭', '♮'];
-            setInterval(() => {
-                const note = document.createElement('div');
-                note.classList.add('music-note');
-                note.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-                note.style.left = Math.random() * 100 + 'vw';
-                note.style.animationDuration = (Math.random() * 2 + 3) + 's';
-                document.body.appendChild(note);
-                setTimeout(() => { note.remove(); }, 5000);
+        function transitionTo(from, to) {
+            document.getElementById(from).classList.remove('active');
+            setTimeout(() => {
+                document.getElementById(to).classList.add('active');
             }, 300);
         }
 
-        function selectPrize(prizeName) {
-            document.getElementById('victory-screen').classList.remove('active');
-            document.getElementById('final-screen').classList.add('active');
-            document.getElementById('chosen-prize').innerText = `PREMIO: ${prizeName}`;
+        function selectPrize(name) {
+            document.getElementById('chosen-prize').innerText = `PREMIO: ${name}`;
+            transitionTo('victory-screen', 'final-screen');
+            startFinalEffects();
         }
 
-        // --- EASTER EGG (SECRETO) ---
-        let secretCount = 0;
-        const titleBtn = document.getElementById('main-title');
-
-        titleBtn.addEventListener('click', () => {
-            secretCount++;
-            if(secretCount === 5) { // 5 clicks rápidos
-                alert("💀 SECRETO DESBLOQUEADO: Te quiero mucho tonto. 💀");
-                document.body.style.backgroundColor = "#3a0000"; // Cambia fondo a rojo oscuro
+        function startFinalEffects() {
+            // Estrellas
+            const container = document.getElementById('stars');
+            container.style.display = 'block';
+            for(let i=0; i<5; i++) {
+                const s = document.createElement('div');
+                s.classList.add('star');
+                // Alternar colores negro y rojo
+                if(i % 2 !== 0) s.style.background = 'black';
+                s.style.animation = `star-expand 4s infinite linear`;
+                s.style.animationDelay = `${i * 0.8}s`;
+                container.appendChild(s);
             }
-        });
+
+            // Lluvia de notas masiva
+            const notes = ['♩','♪','♫','♬','♭','♮','♯','𝄞','𝄡','𝄢','𝄫'];
+            setInterval(() => {
+                const n = document.createElement('div');
+                n.classList.add('music-note');
+                n.innerText = notes[Math.floor(Math.random() * notes.length)];
+                n.style.left = Math.random() * 100 + 'vw';
+                n.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                document.body.appendChild(n);
+                setTimeout(() => n.remove(), 4000);
+            }, 80);
+        }
     </script>
 </body>
 </html>
